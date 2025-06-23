@@ -383,3 +383,36 @@ graph TB
     class J,K,L,M,N viewerStyle
     class O,P,Q externalStyle
 ```
+
+
+```mermaid
+
+
+graph TB
+    A[DJI Cloud API Server<br/>Port 6789] --> B[MediaMTX RTSP Server<br/>Port 8554]
+    
+    C[Drone 1: SERIAL001<br/>Camera 39-0-7] --> D[Dynamic Stream Path<br/>live/SERIAL001-39-0-7]
+    E[Drone 2: SERIAL002<br/>Camera 39-0-7] --> F[Dynamic Stream Path<br/>live/SERIAL002-39-0-7]
+    G[Drone 3: SERIAL003<br/>Camera 52-0-0] --> H[Dynamic Stream Path<br/>live/SERIAL003-52-0-0]
+    
+    D --> B
+    F --> B
+    H --> B
+    
+    B --> I[RTSP URLs]
+    I --> J["rtsp://admin:admin123@localhost:8554/live/SERIAL001-39-0-7"]
+    I --> K["rtsp://admin:admin123@localhost:8554/live/SERIAL002-39-0-7"]
+    I --> L["rtsp://admin:admin123@localhost:8554/live/SERIAL003-52-0-0"]
+    
+    B --> M[WebRTC Viewer<br/>Port 8888]
+    B --> N[RTMP Streams<br/>Port 1935]
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+    style E fill:#e8f5e8
+    style G fill:#e8f5e8
+    style M fill:#fff3e0
+    style N fill:#fff3e0
+
+```
