@@ -1,0 +1,85 @@
+services:
+  cloud_api_sample_mysql:
+    image: mysql:8.0
+    container_name: cloud_api_sample_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: cloud_sample
+      MYSQL_USER: dji_user
+      MYSQL_PASSWORD: dji_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/cloud_sample.sql:/docker-entrypoint-initdb.d/cloud_sample.sql
+    networks:
+      - dji-network
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  cloud_api_sample_redis:
+    image: redis:7-alpine
+    container_name: cloud_api_sample_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - dji-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 20s
+      retries: 10
+
+  # MediaMTX Server for live streaming (updated from deprecated rtsp-simple-server)
+  rtsp-server:
+    image: bluenviron/mediamtx:latest
+    container_name: rtsp-server
+    ports:
+      - "8554:8554"  # RTSP port
+      - "1935:1935"  # RTMP port
+      - "8888:8888"  # Web interface
+      - "8889:8889"  # WebRTC port
+    networks:
+      - dji-network
+    restart: unless-stopped
+    volumes:
+      - ./mediamtx.yml:/mediamtx.yml
+
+  dji-cloud-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dji-cloud-api
+    ports:
+      - "6789:6789"
+    depends_on:
+      cloud_api_sample_mysql:
+        condition: service_healthy
+      cloud_api_sample_redis:
+        condition: service_healthy
+      rtsp-server:
+        condition: service_started
+    networks:
+      - dji-network
+    volumes:
+      - ./logs:/app/logs
+      - ./media:/app/media
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  dji-network:
+    driver: bridge 

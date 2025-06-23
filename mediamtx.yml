@@ -1,0 +1,48 @@
+# MediaMTX Configuration
+
+# RTSP server
+rtspAddress: :8554
+rtspTransports: [tcp, udp]  # Updated from deprecated 'protocols'
+
+# RTMP server  
+rtmpAddress: :1935
+
+# WebRTC server
+webrtcAddress: :8888
+
+# HLS server
+hlsAddress: :8889
+
+# API server
+apiAddress: :9997
+
+# Authentication using new format
+authInternalUsers:
+  - user: admin
+    pass: admin123
+    permissions:
+      - action: publish
+      - action: read
+
+# Paths - Support for multiple drone streams
+paths:
+  # Default catch-all path - supports dynamic drone streams
+  "~^.*":
+    # Inherits from global authInternalUsers
+    
+  # Static test stream path
+  dji:
+    # For testing/demo purposes
+    
+  # Dynamic live stream paths for multiple drones
+  # Pattern: live/{drone_sn}-{camera_index}
+  "~^live/[A-Z0-9]+-.*":
+    # Each drone gets its own stream path
+    # Example: live/DRONE001-39-0-7, live/DRONE002-39-0-7, etc.
+    
+  # Legacy single live stream path (for backwards compatibility)  
+  live:
+    # Inherits from global auth
+
+# Logging
+logLevel: info 
