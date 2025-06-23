@@ -303,3 +303,83 @@ graph TD
     class DD,EE,FF,GG,HH,II,JJ dataStyle
     class KK,LL,MM,NN,OO,PP,QQ apiStyle
 ```
+
+## 📊 Stream Flow Diagram:
+
+```mermaid
+
+
+graph TB
+    subgraph "DJI Devices"
+        A[DJI Drone Camera]
+        B[DJI Dock Camera]
+        C[Payload Camera]
+    end
+    
+    subgraph "DJI Cloud API"
+        D[MQTT Handler]
+        E[Live Stream Controller]
+        F[Stream Manager]
+    end
+    
+    subgraph "Streaming Servers"
+        G[RTSP Server<br/>Port: 8554]
+        H[RTMP Server<br/>Port: 1935]
+        I[WebRTC Server<br/>Port: 8888]
+    end
+    
+    subgraph "Viewers/Players"
+        J[VLC Player]
+        K[Web Browser]
+        L[OBS Studio]
+        M[Mobile Apps]
+        N[Custom Applications]
+    end
+    
+    subgraph "External Services"
+        O[Agora RTC]
+        P[YouTube Live]
+        Q[AWS CloudFront]
+    end
+    
+    %% Device to API connections
+    A -->|Camera Stream| D
+    B -->|Live Feed| D  
+    C -->|Payload Video| D
+    
+    %% API internal flow
+    D -->|MQTT Commands| E
+    E -->|Stream Data| F
+    
+    %% Stream distribution
+    F -->|RTSP Protocol| G
+    F -->|RTMP Protocol| H
+    F -->|WebRTC| I
+    
+    %% Viewer connections
+    G -->|rtsp://localhost:8554/live/dji| J
+    G -->|RTSP Stream| L
+    I -->|WebRTC| K
+    H -->|RTMP| P
+    
+    %% External integrations
+    F -.->|RTC Stream| O
+    H -.->|CDN Distribution| Q
+    
+    %% Direct viewing
+    G --> N
+    I --> M
+    
+    %% Styling
+    classDef deviceStyle fill:#000
+    classDef apiStyle fill:#000
+    classDef serverStyle fill:#000
+    classDef viewerStyle fill:#000
+    classDef externalStyle fill:#000
+    
+    class A,B,C deviceStyle
+    class D,E,F apiStyle
+    class G,H,I serverStyle
+    class J,K,L,M,N viewerStyle
+    class O,P,Q externalStyle
+```
